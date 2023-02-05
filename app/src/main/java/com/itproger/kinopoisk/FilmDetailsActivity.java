@@ -1,15 +1,16 @@
 package com.itproger.kinopoisk;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,34 +22,37 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class MainActivity extends AppCompatActivity {
-
-    private static String Id = "";
-    private static String JSON_URL = "https://kinopoiskapiunofficial.tech/api/v2.2/films/top?type=TOP_100_POPULAR_FILMS";
-    private static String JSON_URL_filmID = "https://kinopoiskapiunofficial.tech/api/v2.2/films/" + Id;
+public class FilmDetailsActivity extends AppCompatActivity {
+    private static String Id = "840821";
+    private static String JSON_URL_filmID = "https://kinopoiskapiunofficial.tech/api/v2.2/films/"+Id;
     private static final String API_KEY = "e30ffed0-76ab-4dd6-b41f-4c9da2b2735b";
 
-//    private final String TAG = "DEV";
+    ImageView image_details;
+    TextView filmName_details;
+    TextView description;
+    TextView genre;
+    TextView country;
+    private Context context;
 
-    private RecyclerView recyclerView;
-    List<FilmModel> filmsList;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_film_details);
 
-        filmsList = new ArrayList<>();
-        recyclerView = findViewById(R.id.top_films_recyclerView);
+        image_details = findViewById(R.id.image_details);
+        filmName_details = findViewById(R.id.filmName_details);
+        description = findViewById(R.id.description);
+        genre = findViewById(R.id.genre);
+        country = findViewById(R.id.country);
 
-        GetData getData = new GetData();
+        FilmDetailsActivity.GetData getData = new FilmDetailsActivity.GetData();
         getData.execute();
+
     }
 
     public class GetData extends AsyncTask<String,String,String> {
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 URL url;
                 HttpURLConnection urlConnection = null;
                 try{
-                    url=new URL(JSON_URL);
+                    url=new URL(JSON_URL_filmID);
                     urlConnection=(HttpsURLConnection) url.openConnection();
                     urlConnection.setRequestProperty("X-API-KEY", API_KEY);
                     InputStream is=urlConnection.getInputStream();
@@ -97,40 +101,29 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                JSONArray jsonArray = jsonObject.getJSONArray("films");
-
-                for (int i = 0 ; i< jsonArray.length() ; i++){
-
-                    JSONObject jsonObj = jsonArray.getJSONObject(i);
 
                     FilmModel model = new FilmModel();
-                    model.setId(jsonObj.getInt("filmId"));
-                    model.setNameRu(jsonObj.getString("nameRu"));
-                    model.setYear(jsonObj.getString("year"));
-                    model.setImg(jsonObj.getString("posterUrlPreview"));
+                    model.setId(jsonObject.getInt("kinopoiskId"));
+                    model.setNameRu(jsonObject.getString("nameRu"));
+                    model.setDescription(jsonObject.getString("description"));
+                    model.setGenre(jsonObject.getString("genres"));
+                    model.setCountry(jsonObject.getString("countries"));
 
-                    filmsList.add(model);
+                model.setImg(jsonObject.getString("posterUrlPreview"));
 
-                }
+                    filmName_details.setText(model.getNameRu());
 
-            } catch (JSONException e) {
-                e.printStackTrace();
+                //используем библиотеку Glide для отображения изображений
+//                Glide.with(context)
+//                        .load(model.getImg())
+//                        .into(image_details);
+                    country.setText(model.getCountry());
+                    description.setText(model.getDescription());
+                    genre.setText(model.getGenre());
+
+                } catch (JSONException ex) {
+                ex.printStackTrace();
             }
-
-            PutDataIntoRecyclerView(filmsList);
         }
-    }
-
-    private void PutDataIntoRecyclerView(List<FilmModel> movieList){
-
-        FilmsAdapter filmsAdapter = new FilmsAdapter(this, filmsList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(filmsAdapter);
-    }
-
-    public void detailsActivity(View v){
-                Intent intent = new Intent(this, FilmDetailsActivity.class);
-                intent.putExtra("filmId", "4370148");
-                startActivity(intent);
     }
 }

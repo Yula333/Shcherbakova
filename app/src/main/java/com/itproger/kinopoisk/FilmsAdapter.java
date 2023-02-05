@@ -1,6 +1,9 @@
 package com.itproger.kinopoisk;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,8 @@ public class FilmsAdapter extends RecyclerView.Adapter<FilmsAdapter.FilmViewHold
 
    private Context context;
    private List<FilmModel> films;
+    private final String TAG = "DEV";
+
 
     public FilmsAdapter(Context context, List<FilmModel> films) {
         this.context = context;
@@ -34,7 +39,7 @@ public class FilmsAdapter extends RecyclerView.Adapter<FilmsAdapter.FilmViewHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FilmViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FilmViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.name.setText(films.get(position).getNameRu());
         holder.year.setText(films.get(position).getYear());
         //используем библиотеку Glide для отображения изображений
