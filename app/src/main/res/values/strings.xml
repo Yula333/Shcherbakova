@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">kinopoisk</string>
+    <string name="logo">Популярные</string>
+    <string name="btn_popular">Популярные</string>
+    <string name="btn_favorite">Избранное</string>
+
+</resources>
